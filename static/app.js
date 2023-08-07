@@ -1,8 +1,60 @@
+//수정 함수
+async function editMemo(event) {
+  //이벤트가 눌렸는 지 확인하는 속성
+  //event.target
+  //event.target.dataset.id : 이벤트가 눌렸을 때, data-id도 가져오는지 확인
+  console.log(event.target.dataset.id);
+  const id = event.target.dataset.id;
+  //alert처럼 웹브라우저에서 수정할 값을 받을 수 있음
+  const editInput = prompt("수정할 값을 입력하세요");
+  console.log(editInput);
+  const res = await fetch(`/memos/${id}`, {
+    //PUT메서드: 특정값이 있을 때 이 값으로 바꾸는 메서드
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      id,
+      content: editInput,
+    }),
+  });
+  readMemo();
+}
+
+//삭제 함수
+async function deleteMemo(event) {
+  const id = event.target.dataset.id;
+  const res = await fetch(`/memos/${id}`, {
+    method: "DELETE",
+  });
+  readMemo();
+}
+
 function displayMemo(memo) {
   const ul = document.querySelector("#memo-ul");
   const li = document.createElement("li");
   li.innerHTML = `[id:${memo.id}] ${memo.content}`;
+
+  //수정버튼
+  const editBtn = document.createElement("button");
+
+  editBtn.innerText = "수정하기";
+  editBtn.addEventListener("click", editMemo);
+  //dataset이라는 속성에 id값에 메모의 id를 넣어준다
+  //즉, 메모 1개당의 data-id 값을 처리해주는 것
+  editBtn.dataset.id = memo.id;
+
+  //삭제버튼
+  const delBtn = document.createElement("button");
+
+  delBtn.innerText = "삭제하기";
+  delBtn.addEventListener("click", deleteMemo);
+  delBtn.dataset.id = memo.id;
+
   ul.appendChild(li);
+  li.appendChild(editBtn);
+  li.appendChild(delBtn);
 }
 
 async function readMemo() {
